@@ -65,20 +65,21 @@ def cpu_usage():
 
 def mem_usage():
     usage = psutil.virtual_memory()
-    return "Mem: %s %.0f%%" \
-        % (bytes2human(usage.used), 100 - usage.percent)
+    return "Mem: %s/%s %.0f%%" \
+        % (bytes2human(usage.used), bytes2human(usage.total), usage.percent)
 
 
 def disk_usage(dir):
     usage = psutil.disk_usage(dir)
-    return "SD:  %s %.0f%%" \
-        % (bytes2human(usage.used), usage.percent)
+    return "SD:  %s/%s %.0f%%" \
+        % (bytes2human(usage.used), bytes2human(usage.total), usage.percent)
 
 
 def network(iface):
-    stat = psutil.net_io_counters(pernic=True)[iface]
-    return "%s: Tx%s, Rx%s" % \
-           (iface, bytes2human(stat.bytes_sent), bytes2human(stat.bytes_recv))
+    #stat = psutil.net_io_counters(pernic=True)[iface]
+    ip = psutil.net_if_addrs()[iface]
+    return "%s: %s" % \
+           (iface, ip[0].address)
 
 
 def stats(device):
@@ -95,6 +96,7 @@ def stats(device):
             draw.text((0, 26), disk_usage('/'), font=font2, fill="white")
             try:
                 draw.text((0, 38), network('wlan0'), font=font2, fill="white")
+                draw.text((0, 50), network('eth0'), font=font2, fill="white")
             except KeyError:
                 # no wifi enabled/available
                 pass
